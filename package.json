@@ -1,0 +1,8 @@
+{
+  "name": "hoc-ngoai-ngu",
+  "version": "1.0.0",
+  "description": "Hoc ngoai ngu qua YouTube",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
