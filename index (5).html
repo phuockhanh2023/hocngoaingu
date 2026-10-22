@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Học ngoại ngữ qua YouTube v7</title>
+<style>
+  :root { --size: 26px; --vh: 36; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: #111; color: #eee; font: 15px/1.4 Arial, "Noto Sans SC", sans-serif; }
+  .bar { display: flex; gap: 6px; padding: 8px; background: #1c1c1c; }
+  .bar input { flex: 1; min-width: 0; padding: 9px; border-radius: 8px; border: 0; font-size: 15px; }
+  .bar select, .bar button { padding: 9px 10px; border-radius: 8px; border: 0; font-size: 15px; }
+  .bar button { background: #ffd54f; font-weight: 700; }
+  #stage { flex: 1 1 auto; min-height: 0; background: #000; overflow-y: auto; display: flex; flex-direction: column; }
+  #pwrap { position: relative; width: min(100%, calc(var(--vh) * 1vh * 16 / 9)); aspect-ratio: 16/9; margin: 0 auto; }
+  #pwrap iframe, #pwrap div { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #msg { padding: 8px 12px; color: #ffab91; display: none; }
+  #sub { background: #000; padding: 6px 12px 8px; text-align: center; flex: 1 0 auto; }
+  #vocab { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 2px 0 8px; }
+  #vocab:empty { display: none; }
+  body.novocab #vocab { display: none; }
+  .chip { flex: 0 0 auto; background: #262626; border-radius: 8px; padding: 3px 9px 4px; text-align: center; cursor: pointer; min-width: 56px; }
+  .chip:active { background: #444; }
+  .chip .c-py { font-size: 11px; color: #bdbdbd; }
+  .chip .c-py:empty { display: none; }
+  .chip .c-zh { font-size: 20px; font-weight: 700; }
+  .chip .c-vi { font-size: 12px; color: #ffd54f; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #orig { font-size: var(--size); line-height: 2.1; font-family: "Noto Sans SC","Microsoft YaHei",Arial,sans-serif; }
+  .w { border-radius: 4px; padding: 0 1px; cursor: pointer; }
+  .w:active { background: rgba(255,213,79,.35); }
+  ruby { ruby-position: over; }
+  rt { font-size: .45em; color: #ffd54f; }
+  body.nopin rt { display: none; }
+  #vi { font-size: calc(var(--size) * .68); color: #8be9fd; margin-top: 4px; }
+  body.novi #vi { display: none; }
+  .ctl { flex: 0 0 auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 6px 8px calc(8px + env(safe-area-inset-bottom)); background: #1c1c1c; }
+  .ctl button { flex: 0 0 auto; white-space: nowrap; background: #333; color: #fff; border: 0; border-radius: 8px; padding: 8px 11px; font-size: 14px; }
+  .ctl button.on { background: #ffd54f; color: #000; }
+  body.nolist #list { display: none; }
+  #list { flex: 0 1 32vh; min-height: 0; overflow-y: auto; padding: 6px 8px 40px; }
+  .cue { padding: 8px 10px; border-bottom: 1px solid #262626; cursor: pointer; }
+  .cue.cur { background: #2a2a1a; border-left: 3px solid #ffd54f; }
+  .cue small { color: #888; margin-right: 6px; }
+  #imp { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #1c1c1c; color: #eee; border-radius: 16px 16px 0 0;
+         padding: 14px 14px calc(14px + env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(0,0,0,.6); display: none; }
+  #imp textarea { width: 100%; height: 22vh; border-radius: 8px; border: 0; padding: 8px; font-size: 14px; background: #fff; color: #111; }
+  #imp .row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  #imp button { border: 0; border-radius: 8px; padding: 10px 14px; font-size: 15px; background: #ffd54f; font-weight: 700; }
+  #imp .x { background: #444; color: #fff; font-weight: 400; }
+  #imp small { color: #aaa; display: block; margin-bottom: 6px; }
+  #tip { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: #fff; color: #222; border-radius: 16px 16px 0 0;
+         padding: 14px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(0,0,0,.5); display: none; max-height: 60vh; overflow-y: auto; }
+  #tip .h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  #tip .word { font-size: 30px; font-weight: 700; }
+  #tip .py { color: #c2410c; font-size: 17px; }
+  #tip .hv { color: #6d28d9; font-style: italic; margin-top: 2px; }
+  #tip .main { margin-top: 6px; font-weight: 700; color: #0b5c73; font-size: 17px; }
+  #tip .pos { margin-top: 4px; color: #444; font-size: 14px; }
+  #tip button { border: 0; border-radius: 8px; padding: 9px 13px; font-size: 15px; background: #0b5c73; color: #fff; }
+  #tip .x { background: #ddd; color: #333; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <input id="url" type="url" placeholder="Dán link YouTube..." inputmode="url">
+  <select id="lang">
+    <option value="zh">中文</option><option value="en">English</option>
+    <option value="ko">한국어</option><option value="ja">日本語</option>
+  </select>
+  <button id="go">Học</button>
+</div>
+<div id="msg"></div>
+<div id="stage">
+  <div id="pwrap"><div id="player"></div></div>
+  <div id="sub"><div id="vocab"></div><div id="orig"></div><div id="vi"></div></div>
+</div>
+<div id="list"></div>
+<div class="ctl">
+  <button id="vminus">🎬 Nhỏ hơn</button>
+  <button id="vplus">🎬 Lớn hơn</button>
+  <button id="prev">⏮ Câu trước</button>
+  <button id="replay">🔁 Nghe lại</button>
+  <button id="next">Câu sau ⏭</button>
+  <button id="loop">Lặp câu</button>
+  <button id="bpin" class="on">Phiên âm</button>
+  <button id="bvi" class="on">Tiếng Việt</button>
+  <button id="bvoc" class="on">Từ vựng</button>
+  <button id="blist" class="on">Danh sách câu</button>
+  <button id="bpause" class="on">Chạm từ = dừng</button>
+  <button id="bimp">📄 Phụ đề</button>
+  <button id="minus">A−</button><button id="plus">A+</button>
+</div>
+<div id="imp">
+  <small>Dán nội dung phụ đề (.srt hoặc .vtt) hoặc chọn file. Hãy bấm "Học" với link video trước.</small>
+  <textarea id="impText" placeholder="Dán phụ đề vào đây..."></textarea>
+  <div class="row">
+    <input type="file" id="impFile" accept=".srt,.vtt,.txt,text/plain">
+    <button id="impGo">Dùng phụ đề này</button>
+    <button class="x" id="impClose">Đóng</button>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script src="pinyin-pro.js"></script>
+<script src="data.js"></script>
+<script src="wanakana.js"></script>
+<script src="romanize-ko.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const SAVE = Object.assign({ lang: "zh", pin: true, vi: true, vocab: true, list: true, size: 26, vh: 36, pause: true }, JSON.parse(localStorage.getItem("cnc") || "{}"));
+const save = () => localStorage.setItem("cnc", JSON.stringify(SAVE));
+const HAN = /[\u4e00-\u9fff]/;
+const RE = { zh: HAN, en: /[A-Za-z]/, ko: /[\uac00-\ud7af]/, ja: /[\u3040-\u30ff\u4e00-\u9fff]/ };
+const SL = { zh: "zh-CN", en: "en", ko: "ko", ja: "ja" };
+const TTS = { zh: "zh-CN", en: "en-US", ko: "ko-KR", ja: "ja-JP" };
+const STOP = {
+  zh: new Set(["的","了","吗","吧","呢","啊","呀","嘛","哦","啦","哇","呃","嗯","哈"]),
+  ja: new Set(["は","が","を","に","で","と","も","の","へ","や","か","ね","よ","な","です","ます","でした","ました","だ","た"]),
+  ko: new Set(), en: new Set(),
+};
+const KANA_FIX = { "は": "wa", "へ": "e", "を": "o", "こんにちは": "konnichiwa", "こんばんは": "konbanwa" };
+
+let cues = [], cur = -1, player = null, loopOn = false, lang = SAVE.lang, timer = null;
+const cache = new Map(), jaR = new Map();
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const toSimp = (t) => typeof CNC_T2S === "undefined" ? t : Array.from(t, (c) => CNC_T2S[c] || c).join("");
+
+/* ---------- Dịch (qua server /api/tr -> Google Translate) ---------- */
+async function gt(sl, q) {
+  const r = await fetch("/api/tr?sl=" + (SL[sl] || sl) + "&q=" + encodeURIComponent(q));
+  if (!r.ok) { let m = ""; try { m = (await r.json()).error; } catch (e) {} throw new Error(m || "HTTP " + r.status); }
+  return r.json();
+}
+const joinT = (d) => (d[0] || []).filter((e) => e && typeof e[0] === "string").map((e) => e[0]).join("");
+function translitOf(d) {
+  for (const e of d[0] || []) if (e && e[0] == null && e[1] == null) { const t = typeof e[3] === "string" ? e[3] : typeof e[2] === "string" ? e[2] : ""; if (t) return t; }
+  return "";
+}
+let lastErr = "";
+async function translate(text) {
+  const k = "t:" + lang + text; if (cache.has(k)) return cache.get(k);
+  try { const v = joinT(await gt(lang, text)); cache.set(k, v); return v; } catch (e) { lastErr = e.message; return ""; }
+}
+async function lookup(w) {
+  const k = "w:" + lang + w; if (cache.has(k)) return cache.get(k);
+  const d = await gt(lang, w);
+  const v = { main: joinT(d), translit: translitOf(d), entries: (d[1] || []).map((e) => ({ pos: e[0], terms: (e[1] || []).slice(0, 5) })) };
+  cache.set(k, v); return v;
+}
+// Nhiều từ trong 1 request -> { từ: {m: nghĩa, r: phiên âm} }
+async function batch(words) {
+  const k = (w) => "b:" + lang + ":" + w;
+  const need = words.filter((w) => !cache.has(k(w)));
+  if (need.length) {
+    let done = false;
+    try {
+      const d = await gt(lang, need.join("\n"));
+      const map = {};
+      for (const e of d[0] || []) {
+        if (!e || typeof e[0] !== "string") continue;
+        const src = String(e[1] || "").replace(/\n+$/, "").trim();
+        if (src && need.includes(src) && !(src in map)) map[src] = e[0].trim();
+      }
+      if (need.every((w) => map[w] !== undefined)) {
+        const parts = translitOf(d).split("\n").map((s) => s.trim());
+        need.forEach((w, i) => cache.set(k(w), { m: map[w], r: parts.length === need.length ? parts[i] : "" }));
+        done = true;
+      }
+    } catch (e) { lastErr = e.message; }
+    if (!done) await Promise.all(need.map((w) => lookup(w).then((r) => cache.set(k(w), { m: r.main, r: r.translit || "" })).catch(() => {})));
+    if (lang === "ja") await Promise.all(need.filter((w) => HAN.test(w) && cache.get(k(w)) && !cache.get(k(w)).r).map(async (w) => {
+      try { cache.get(k(w)).r = (await lookup(w)).translit || ""; } catch (e) {}
+    }));
+  }
+  const out = {};
+  for (const w of words) out[w] = cache.get(k(w)) || { m: "", r: "" };
+  return out;
+}
+
+/* ---------- Tách từ, phiên âm, Hán-Việt ---------- */
+function seg(text) {
+  if (lang === "en") return text.split(/(\s+)/).filter(Boolean).map((s) => ({ w: s, word: /[A-Za-z]/.test(s) }));
+  try { return [...new Intl.Segmenter(lang, { granularity: "word" }).segment(text)].map((x) => ({ w: x.segment, word: !!x.isWordLike && RE[lang].test(x.segment) })); }
+  catch (e) { return [...text].map((c) => ({ w: c, word: RE[lang].test(c) })); }
+}
+function reading(w) {
+  try {
+    if (lang === "zh") return HAN.test(w) ? pinyinPro.pinyin(w, { toneType: "symbol" }) : "";
+    if (lang === "ko") return CNC_KO(w);
+    if (lang === "ja") {
+      if (jaR.has(w)) return jaR.get(w);
+      if (HAN.test(w)) return "";
+      return KANA_FIX[w] || wanakana.toRomaji(w);
+    }
+  } catch (e) {}
+  return "";
+}
+function hanViet(word) {
+  if (typeof CNC_HV === "undefined" || typeof CNC_S2T === "undefined") return "";
+  const out = [];
+  for (const ch of word) {
+    if (!HAN.test(ch)) { out.push(ch); continue; }
+    const entry = CNC_HV[CNC_S2T[ch] || ch];
+    if (!entry) { out.push("_"); continue; }
+    let rd;
+    if (entry["*"]) rd = entry["*"];
+    else {
+      const py = pinyinPro.pinyin(ch, { toneType: "num", type: "array" })[0];
+      rd = entry[py] || entry[py + "5"];
+      if (!rd || !rd.length) rd = Object.values(entry).find((a) => a.length) || [];
+    }
+    out.push(rd.length ? rd.slice(0, 2).join("/") : "_");
+  }
+  return out.join(" ");
+}
+function wordHtml(p) {
+  if (!p.word) return esc(p.w);
+  let inner;
+  if (lang === "zh" && HAN.test(p.w)) {
+    try {
+      inner = pinyinPro.pinyin(p.w, { type: "all", toneType: "symbol" }).map((it) =>
+        it.isZh ? "<ruby>" + esc(it.origin) + "<rt>" + esc(it.pinyin) + "</rt></ruby>" : esc(it.origin)).join("");
+    } catch (e) { inner = esc(p.w); }
+  } else {
+    const r = reading(p.w);
+    inner = r ? "<ruby>" + esc(p.w) + "<rt>" + esc(r) + "</rt></ruby>" : esc(p.w);
+  }
+  return '<span class="w" data-w="' + esc(p.w) + '">' + inner + "</span>";
+}
+
+/* ---------- Hiển thị câu hiện tại ---------- */
+async function render(i) {
+  const c = cues[i];
+  if (!c) { $("#orig").innerHTML = ""; $("#vi").textContent = ""; $("#vocab").innerHTML = ""; return; }
+  const text = lang === "zh" ? toSimp(c.t) : c.t;
+  const parts = seg(text);
+  const draw = () => { $("#orig").innerHTML = parts.map(wordHtml).join(""); };
+  draw();
+
+  const seen = new Set(), vwords = [];
+  for (const p of parts) { const k = p.w.toLowerCase(); if (p.word && !STOP[lang].has(p.w) && !seen.has(k)) { seen.add(k); vwords.push(p.w); } }
+  const vlist = vwords.slice(0, 12);
+  $("#vocab").innerHTML = vlist.map((w) => '<div class="chip" data-w="' + esc(w) + '"><div class="c-py">' + esc(reading(w)) +
+    '</div><div class="c-zh">' + esc(w) + '</div><div class="c-vi">…</div></div>').join("");
+
+  $("#vi").textContent = "…";
+  translate(c.t).then((v) => { if (i === cur) $("#vi").textContent = v || "⚠ Không dịch được" + (lastErr ? " (" + lastErr + ")" : ""); });
+
+  const need = new Set(vlist);
+  if (lang === "ja") parts.forEach((p) => { if (p.word && HAN.test(p.w)) need.add(p.w); });
+  if (need.size) {
+    const d = await batch([...need]);
+    if (i !== cur) return;
+    if (lang === "ja") { for (const w of need) if (HAN.test(w) && d[w].r) jaR.set(w, d[w].r.toLowerCase()); draw(); }
+    document.querySelectorAll("#vocab .chip").forEach((ch) => {
+      const w = ch.dataset.w;
+      ch.querySelector(".c-vi").textContent = (d[w] && d[w].m) || "";
+      ch.querySelector(".c-py").textContent = reading(w);
+    });
+  }
+  for (let k = 1; k <= 3; k++) if (cues[i + k]) translate(cues[i + k].t);
+}
+
+function setCur(i) {
+  if (i === cur) return;
+  cur = i; render(i);
+  document.querySelectorAll(".cue.cur").forEach((e) => e.classList.remove("cur"));
+  const el = document.getElementById("c" + i);
+  if (el) { el.classList.add("cur"); el.scrollIntoView({ block: "center", behavior: "smooth" }); }
+}
+function tick() {
+  if (!player || !player.getCurrentTime || !cues.length) return;
+  const t = player.getCurrentTime();
+  if (loopOn && cur >= 0 && t >= cues[cur].e - 0.05) { player.seekTo(cues[cur].s, true); return; }
+  let i = cur;
+  if (i < 0 || t < cues[i].s - 0.1 || t > cues[i].e + 0.3) i = cues.findIndex((c) => t >= c.s && t < c.e);
+  if (i >= 0) setCur(i);
+}
+
+/* ---------- Danh sách câu ---------- */
+function buildList() {
+  const fmt = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+  $("#list").innerHTML = cues.map((c, i) => '<div class="cue" id="c' + i + '" data-i="' + i + '"><small>' + fmt(c.s) + "</small>" + esc(c.t) + "</div>").join("");
+}
+$("#list").addEventListener("click", (e) => {
+  const el = e.target.closest(".cue"); if (!el || !player) return;
+  const i = +el.dataset.i; player.seekTo(cues[i].s, true); player.playVideo();
+});
+
+/* ---------- Tra từ khi chạm (chữ trong câu hoặc thẻ từ vựng) ---------- */
+async function showTip(w) {
+  if (SAVE.pause && player) player.pauseVideo();
+  const tip = $("#tip"); tip.style.display = "block";
+  const hv = (lang === "zh" || lang === "ja") && HAN.test(w) ? hanViet(w) : "";
+  tip.innerHTML = '<div class="h"><div><div class="word">' + esc(w) + '</div><div class="py">' + esc(reading(w)) + '</div></div><div><button id="spk">🔊 Đọc</button> <button class="x" id="cls">✕</button></div></div>' +
+    (hv ? '<div class="hv">Hán Việt: ' + esc(hv) + "</div>" : "") + '<div class="main">…</div>';
+  $("#spk").onclick = () => speak(w);
+  $("#cls").onclick = () => { tip.style.display = "none"; };
+  speak(w);
+  try {
+    const r = await lookup(w);
+    tip.querySelector(".main").textContent = r.main;
+    if (!reading(w) && r.translit) tip.querySelector(".py").textContent = r.translit;
+    tip.insertAdjacentHTML("beforeend", r.entries.map((x) => '<div class="pos"><b>' + esc(x.pos) + ":</b> " + esc(x.terms.join(", ")) + "</div>").join(""));
+  } catch (err) { tip.querySelector(".main").textContent = "Không tra được: " + err.message; }
+}
+const onTap = (e) => { const el = e.target.closest("[data-w]"); if (el) showTip(el.dataset.w); };
+$("#orig").addEventListener("click", onTap);
+$("#vocab").addEventListener("click", onTap);
+function speak(t) {
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = TTS[lang]; u.rate = 0.85; speechSynthesis.speak(u); } catch (e) {}
+}
+
+/* ---------- Điều khiển ---------- */
+const flag = (id, key, cls) => { $(id).onclick = () => { SAVE[key] = !SAVE[key]; $(id).classList.toggle("on", SAVE[key]); if (cls) document.body.classList.toggle(cls, !SAVE[key]); save(); }; };
+flag("#bpin", "pin", "nopin"); flag("#bvi", "vi", "novi"); flag("#bvoc", "vocab", "novocab"); flag("#blist", "list", "nolist"); flag("#bpause", "pause");
+$("#loop").onclick = () => { loopOn = !loopOn; $("#loop").classList.toggle("on", loopOn); };
+$("#prev").onclick = () => { if (cur > 0) { player.seekTo(cues[cur - 1].s, true); player.playVideo(); } };
+$("#next").onclick = () => { if (cur < cues.length - 1) { player.seekTo(cues[cur + 1].s, true); player.playVideo(); } };
+$("#replay").onclick = () => { if (cur >= 0) { player.seekTo(cues[cur].s, true); player.playVideo(); } };
+const size = (d) => { SAVE.size = Math.min(48, Math.max(16, SAVE.size + d)); document.documentElement.style.setProperty("--size", SAVE.size + "px"); save(); };
+const vsize = (d) => { SAVE.vh = Math.min(60, Math.max(12, SAVE.vh + d)); document.documentElement.style.setProperty("--vh", SAVE.vh); save(); };
+$("#vminus").onclick = () => vsize(-4); $("#vplus").onclick = () => vsize(4);
+$("#minus").onclick = () => size(-2); $("#plus").onclick = () => size(2);
+function applyPrefs() {
+  document.documentElement.style.setProperty("--size", SAVE.size + "px");
+  document.documentElement.style.setProperty("--vh", SAVE.vh);
+  document.body.classList.toggle("nopin", !SAVE.pin); document.body.classList.toggle("novi", !SAVE.vi); document.body.classList.toggle("novocab", !SAVE.vocab); document.body.classList.toggle("nolist", !SAVE.list);
+  $("#bpin").classList.toggle("on", SAVE.pin); $("#bvi").classList.toggle("on", SAVE.vi); $("#bvoc").classList.toggle("on", SAVE.vocab); $("#blist").classList.toggle("on", SAVE.list); $("#bpause").classList.toggle("on", SAVE.pause);
+  $("#lang").value = SAVE.lang;
+}
+
+/* ---------- Nhập phụ đề từ file / dán chữ (.srt, .vtt) ---------- */
+function parseSub(raw) {
+  const tm = (x) => { const m = x.trim().match(/^(?:(\d+):)?(\d+):(\d+)[.,](\d+)$/); return m ? (+(m[1] || 0)) * 3600 + (+m[2]) * 60 + (+m[3]) + (+("0." + m[4])) : NaN; };
+  const out = [];
+  for (const block of raw.replace(/\r/g, "").replace(/^\uFEFF/, "").split(/\n\s*\n/)) {
+    const lines = block.split("\n");
+    const k = lines.findIndex((l) => l.includes("-->"));
+    if (k < 0) continue;
+    const [a, b] = lines[k].split("-->");
+    const s0 = tm(a), e0 = tm(b.trim().split(/\s+/)[0]);
+    if (isNaN(s0) || isNaN(e0)) continue;
+    const t = lines.slice(k + 1).join(" ").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    if (!t) continue;
+    if (out.length && out[out.length - 1].t === t) { out[out.length - 1].e = e0; continue; }
+    out.push({ s: s0, e: e0, t });
+  }
+  for (let i = 0; i < out.length - 1; i++) if (out[i].e > out[i + 1].s) out[i].e = out[i + 1].s;
+  return out;
+}
+$("#bimp").onclick = () => { $("#imp").style.display = "block"; };
+$("#impClose").onclick = () => { $("#imp").style.display = "none"; };
+$("#impFile").onchange = (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $("#impText").value = r.result; }; r.readAsText(f); };
+$("#impGo").onclick = () => {
+  const list = parseSub($("#impText").value);
+  if (!list.length) return alert("Không đọc được phụ đề. Cần định dạng .srt hoặc .vtt (có dòng thời gian dạng 00:00:01,000 --> 00:00:03,000).");
+  if (!player) return alert('Hãy dán link YouTube và bấm "Học" trước.');
+  lang = $("#lang").value; SAVE.lang = lang; save();
+  cues = list; cur = -1; msg(""); buildList(); render(-1);
+  clearInterval(timer); timer = setInterval(tick, 200);
+  $("#imp").style.display = "none";
+};
+
+/* ---------- Tải video + phụ đề ---------- */
+function msg(t) { const m = $("#msg"); m.style.display = t ? "block" : "none"; m.textContent = t || ""; }
+function vid(u) { const m = u.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([\w-]{11})/); return m ? m[1] : /^[\w-]{11}$/.test(u.trim()) ? u.trim() : null; }
+let ytReady = new Promise((res) => { window.onYouTubeIframeAPIReady = res; const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); });
+
+$("#go").onclick = async () => {
+  const id = vid($("#url").value); if (!id) return msg("Link YouTube không hợp lệ");
+  lang = $("#lang").value; SAVE.lang = lang; save(); msg("Đang tải phụ đề..."); cues = []; cur = -1; $("#list").innerHTML = ""; render(-1);
+  await ytReady;
+  if (player && player.loadVideoById) player.loadVideoById(id);
+  else player = new YT.Player("player", { videoId: id, playerVars: { playsinline: 1, cc_load_policy: 0, rel: 0 } });
+  try {
+    const r = await (await fetch("/api/captions?v=" + id + "&lang=" + lang)).json();
+    if (r.error) return msg(r.error + (r.available && r.available.length ? " — Video có: " + r.available.join(", ") : "") + " — Bạn có thể bấm nút \"📄 Phụ đề\" để dán/tải phụ đề thủ công.");
+    cues = r.cues; msg(r.auto ? "Đang dùng phụ đề tự động của YouTube (có thể sai)" : ""); buildList();
+    clearInterval(timer); timer = setInterval(tick, 200);
+  } catch (e) { msg("Không kết nối được server phụ đề"); }
+};
+$("#url").addEventListener("keydown", (e) => { if (e.key === "Enter") $("#go").click(); });
+applyPrefs();
+</script>
+</body>
+</html>
